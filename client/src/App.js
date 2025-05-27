@@ -6,14 +6,24 @@ function App() {
   useEffect(() => {
     fetch("/members")
       .then((response) => response.json())
-      .then((data) => setData(data))
+      .then((data) => {
+        setData(data);
+        console.log(data);
+      })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
+
   return (
     <div>
-      <h1>Welcome to the React App</h1>
-      <p>This is a simple React application.</p>
-      <p>Feel free to explore and modify the code!</p>
+      {typeof data.members === "undefined" ? (
+        <p>Loading...</p>
+      ) : (
+        data.members.map((member, index) => (
+          <div key={index}>
+            <h2>{member}</h2>
+          </div>
+        ))
+      )}
     </div>
   );
 }
