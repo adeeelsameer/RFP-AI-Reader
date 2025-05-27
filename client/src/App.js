@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Home from "./pages/Home";
+import Home from "./pages/Home/Home";
+import "./App.css";
 
 function App() {
   const [data, setData] = useState([{}]);
