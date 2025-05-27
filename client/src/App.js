@@ -1,4 +1,5 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
+import Home from "./pages/Home";
 
 function App() {
   const [data, setData] = useState([{}]);
@@ -15,15 +16,7 @@ function App() {
 
   return (
     <div>
-      {typeof data.members === "undefined" ? (
-        <p>Loading...</p>
-      ) : (
-        data.members.map((member, index) => (
-          <div key={index}>
-            <h2>{member}</h2>
-          </div>
-        ))
-      )}
+      <Home />
     </div>
   );
 }
