@@ -40,8 +40,6 @@ function LandingPage() {
       console.error("Error uploading file:", error);
       setUploadStatus("Error");
     }
-
-    setUploadStatus("idle");
   };
 
   return (
@@ -72,7 +70,6 @@ function LandingPage() {
               accept=".pdf,.docx,.txt"
               style={{ display: "none" }}
             />
-            {file?.name}
           </Button>
           {file && (
             <div id="file-name-display">
@@ -92,6 +89,7 @@ function LandingPage() {
               Error uploading file.
             </p>
           )}
+          {setUploadStatus === "idle"}
         </div>
       </div>
     </div>
