@@ -4,14 +4,21 @@ from flask_cors import CORS
 import os
 from langchain.document_loaders.pdf import PyPDFDirectoryLoader
 
+from get_embedding_function import get_embedding_function
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema.document import Document
+
+from langchain_chroma import Chroma
 
 app = Flask(__name__)
 CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+CHROMA_PATH = "chroma"
+DATA_PATH = "data"
 
 def parse_text_from_file(filepath):
 
@@ -32,12 +39,12 @@ def parse_text_from_file(filepath):
 
     documents = load_documents()
     chunks = split_documents(documents)
-    print(chunks[0])
+    add_to_chroma(chunks)
+
 
 def load_documents():
     document_loader = PyPDFDirectoryLoader(UPLOAD_FOLDER)
     return document_loader.load()
-
 
 def split_documents(documents):
     text_splitter = RecursiveCharacterTextSplitter(
@@ -53,6 +60,53 @@ def split_documents(documents):
 # def split_text(text):
 #     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 #     return text_splitter.split_text(text)
+
+def add_to_chroma(chunks):
+    db = Chroma(
+        embedding_function=get_embedding_function(),
+        persist_directory=CHROMA_PATH
+    )
+
+    chunks_with_ids = calculate_chunk_ids(chunks)
+
+    existing_items = db.get(include=[])
+    existing_ids = set(existing_items["ids"])
+    print(f"Number of existing documents in DB: {len(existing_ids)}")
+
+    new_chunks = []
+    for chunk in chunks_with_ids:
+        if chunk.metadata["id"] not in existing_ids:
+            new_chunks.append(chunk)
+
+    if len(new_chunks):
+        print(f"Adding new documents: {len(new_chunks)}")
+        new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
+        db.add_documents(new_chunks, ids=new_chunk_ids)
+    else:
+        print("No new documents to add")
+
+def calculate_chunk_ids(chunks):
+
+    # create IDs like "source:page:chunk_index"
+    last_page_id = None
+    current_chunk_index = 0
+
+    for chunk in chunks:
+        source = chunk.metadata.get("source")
+        page = chunk.metadata.get("page")
+        current_page_id = f"{source}:{page}"
+
+        if current_page_id == last_page_id:
+            current_chunk_index += 1
+        else:
+            current_chunk_index = 0
+
+        chunk_id = f"{current_page_id}:{current_chunk_index}"
+        last_page_id = current_page_id
+
+        chunk.metadata["id"] = chunk_id
+
+    return chunks
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
