@@ -16,29 +16,31 @@ function LandingPage() {
       return;
     }
 
+    const selectedFile = files[0];
+    setFile(selectedFile);
     setUploadStatus("uploading");
-    setFile(files[0]);
 
     if (file) {
-      console.log("Files selected:", file);
+      console.log("Files selected:", selectedFile.name);
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", selectedFile);
 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://127.0.0.1:5000/upload", {
         method: "POST",
-        body: formData,
+        body: formData, // so basically send the formData to the backend
       });
 
       const data = await response.json();
       console.log("Server response:", data);
+      setUploadStatus("success");
     } catch (error) {
       console.error("Error uploading file:", error);
+      setUploadStatus("Error");
     }
 
-    setFile(event.target.files[0].name);
     setUploadStatus("idle");
   };
 
@@ -67,7 +69,6 @@ function LandingPage() {
             <input
               type="file"
               onChange={handleFileUpload}
-              single
               accept=".pdf,.docx,.txt"
               style={{ display: "none" }}
             />
