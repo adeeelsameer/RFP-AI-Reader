@@ -9,7 +9,7 @@ from get_embedding_function import get_embedding_function
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema.document import Document
 
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import Chroma
 
 app = Flask(__name__)
 CORS(app)
