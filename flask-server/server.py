@@ -14,6 +14,8 @@ from langchain_chroma import Chroma
 
 import shutil
 
+from query_data import query_rag
+
 app = Flask(__name__)
 CORS(app)
 
@@ -131,6 +133,17 @@ def upload_file():
     parse_text_from_file(filepath)
 
     return jsonify({"message": "File uploaded and parsed successfully"}), 200
+
+@app.route("/questions", methods=["POST"])
+def questions():
+    data = request.get_json()
+    if not data or "question" not in data:
+        return jsonify({"error": "No questions provided"}), 400
+
+    question_text = data["question"]
+    response = query_rag(question_text)
+
+    return jsonify({"answer": response}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

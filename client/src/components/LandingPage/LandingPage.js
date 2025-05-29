@@ -1,7 +1,8 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import "./LandingPage.css";
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ChatPage from "../ChatPage/ChatPage";
 
 function LandingPage() {
   // Function to handle file upload
@@ -46,44 +47,87 @@ function LandingPage() {
     <div>
       <div id="landing-page-container">
         <div id="upload-button-container">
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}
-            sx={{
-              backgroundColor: "#4CAF50",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#45a049",
-              },
-              width: "200px",
-              height: "50px",
-              fontSize: "16px",
-            }}
-          >
-            Upload files
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              accept=".pdf,.docx,.txt"
-              style={{ display: "none" }}
-            />
-          </Button>
-          {file && (
+          {uploadStatus === ("idle" || "error") && (
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                backgroundColor: "#4CAF50",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "#45a049",
+                },
+                width: "330px",
+                height: "150px",
+                fontSize: "18px",
+                fontWeight: "500",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "15px",
+                border: "2px dashed #ccc",
+                borderRadius: "20px",
+                cursor: "pointer",
+              }}
+            >
+              Upload files
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                accept=".pdf,.docx,.txt"
+                style={{ display: "none" }}
+              />
+            </Button>
+          )}
+
+          {uploadStatus === "uploading" && (
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                backgroundColor: "#4CAF50",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "#45a049",
+                },
+                width: "330px",
+                height: "150px",
+                fontSize: "18px",
+                fontWeight: "500",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "15px",
+                border: "2px dashed #ccc",
+                borderRadius: "20px",
+              }}
+            >
+              Uploading...
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                accept=".pdf,.docx,.txt"
+                style={{ display: "none" }}
+              />
+            </Button>
+          )}
+
+          {uploadStatus === "success" && <ChatPage />}
+
+          {file && uploadStatus === "uploading" && (
             <div id="file-name-display">
               <p>Selected file: {file?.name}</p>
             </div>
           )}
-          {uploadStatus === "uploading" && (
-            <p id="upload-status">Uploading...</p>
-          )}
-          {uploadStatus === "success" && (
-            <p id="upload-status" style={{ color: "green" }}>
-              File uploaded successfully!
-            </p>
-          )}
+
           {uploadStatus === "error" && (
             <p id="upload-status" style={{ color: "red" }}>
               Error uploading file.
