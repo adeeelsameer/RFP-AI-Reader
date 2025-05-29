@@ -1,4 +1,3 @@
-import React from "react";
 import "./Home.css";
 import ResponsiveAppBar from "../../components/NavBar/NavBar";
 import LandingPage from "../../components/LandingPage/LandingPage";

@@ -25,7 +25,7 @@ function ResponsiveAppBar() {
 
   return (
     <AppBar
-      position="static"
+      position="absolute"
       sx={{
         backgroundColor: "#FFFFFF",
         display: "flex",
