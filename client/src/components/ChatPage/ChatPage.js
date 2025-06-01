@@ -1,7 +1,7 @@
 import "./ChatPage.css";
 import { useState, useEffect, useRef } from "react";
 
-function ChatPage() {
+function ChatPage({ onBack }) {
   const [inputValue, setInputValue] = useState(""); // Track input text
   const [conversation, setConversation] = useState([
     { role: "bot", text: "Hey there! Ask me anything about the RFP." },
@@ -63,6 +63,9 @@ function ChatPage() {
     <div className="chat-page">
       <div className="chat-box">
         <div className="chat-header">
+          <button onClick={onBack} className="back-button">
+            ← Back
+          </button>
           <h2>Chat with Mannai</h2>
         </div>
 
