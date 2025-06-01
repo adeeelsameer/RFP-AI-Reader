@@ -84,6 +84,7 @@ body {
   font-size: 1rem;
   margin-right: 10px;
   transition: border 0.3s;
+  color:#142849
 }
 
 .chat-input input:focus {
