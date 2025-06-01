@@ -7,7 +7,6 @@ function ChatPage() {
     { role: "bot", text: "Hey there! Ask me anything about the RFP." },
   ]);
   const [send, setSend] = useState("idle"); // "idle" | "sending" | "sent" | "error"
-  const [reply, setReply] = useState(null);
 
   const handleSendQuestion = async () => {
     const trimmed = inputValue.trim();
@@ -20,45 +19,33 @@ function ChatPage() {
     setSend("sending");
     setInputValue("");
 
-    const response = await fetch("http://127.0.0.1:5000/questions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ question: trimmed }),
-    });
+    try {
+      const response = await fetch("http://127.0.0.1:5000/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question: trimmed }),
+      });
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let botReply = "";
+      const data = await response.json();
+      console.log("Server response:", data);
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk
-        .split("\n")
-        .filter((line) => line.startsWith("data: "));
-
-      for (const line of lines) {
-        const token = line.replace("data: ", "").trim();
-        if (token === "[DONE]") {
-          setConversation((prev) => [...prev, { role: "bot", text: botReply }]);
-          setSend("sent");
-          return;
-        }
-        botReply += token;
-        setConversation((prev) => {
-          const last = prev[prev.length - 1];
-          if (last?.role === "bot") {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "bot", text: botReply };
-            return updated;
-          }
-          return [...prev, { role: "bot", text: botReply }];
-        });
-      }
+      setConversation((prev) => [
+        ...prev,
+        {
+          role: "bot",
+          text: data.answer,
+        },
+      ]);
+      setSend("sent");
+    } catch (error) {
+      console.error("Error sending question:", error);
+      setSend("error");
+      setConversation((prev) => [
+        ...prev,
+        { role: "bot", text: "Oops! Something went wrong." },
+      ]);
     }
   };
 

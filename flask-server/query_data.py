@@ -25,14 +25,6 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
-def main():
-    parser = argparse.ArgumentParser(description="Query RAG system with a question.")
-    parser.add_argument("query", type=str, help="The question to ask the RAG system.")
-    args = parser.parse_args()
-
-    query_text = args.query
-    query_rag(query_text)
-
 def query_rag(query_text: str):
     embedding_function = get_embedding_function()
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
@@ -53,6 +45,3 @@ def query_rag(query_text: str):
     formatted_response = f"Response: {response}\nSources: {sources}"
     print(formatted_response)
     return response
-
-if __name__ == "__main__":
-    main()
