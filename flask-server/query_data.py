@@ -14,7 +14,7 @@ import getpass
 CHROMA_PATH = "chroma"
 
 PROMPT_TEMPLATE = """
-The following context is extracted from parts of a company's RFP to give you context since it is a large document. Use it to answer the question as accurately as possible. Make sure you know the company's name and the things they do, as well as the products and services they offer. If you don't know the answer, say "Sorry. I am not sure of this answer." instead of making up an answer. Answer like you are giving a response to a customer and you know very well about the company and this RFP.
+The following context is extracted from parts of a company's RFP to give you context since it is a large document. Use it to answer the question as accurately as possible. Make sure you know the company's name and the things they do, as well as the products and services they offer. If you don't know the answer, say "Sorry, the given RFP does not have enough information for me to answer this question." instead of making up an answer. Answer like you are giving a response to a customer and you know very well about the company and this RFP.
 
 Answer the question based only on the following context:
 

@@ -3,35 +3,62 @@ import { useState } from "react";
 
 function ChatPage() {
   const [inputValue, setInputValue] = useState(""); // Track input text
-  const [question, setQuestion] = useState(null);
+  const [conversation, setConversation] = useState([
+    { role: "bot", text: "Hey there! Ask me anything about the RFP." },
+  ]);
+  const [send, setSend] = useState("idle"); // "idle" | "sending" | "sent" | "error"
   const [reply, setReply] = useState(null);
-  const [send, setSend] = useState("idle"); // status = "idle" | "sending" | "sent" | "error"
 
-  const handleSendQuestion = async (event) => {
-    if (!inputValue.trim()) {
+  const handleSendQuestion = async () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) {
       console.error("No question provided");
       return;
     }
 
-    setQuestion(inputValue);
+    setConversation((prev) => [...prev, { role: "user", text: trimmed }]);
     setSend("sending");
+    setInputValue("");
 
-    try {
-      const response = await fetch("http://127.0.0.1:5000/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ question: inputValue }),
-      });
-      const data = await response.json();
-      console.log("Server response:", data);
-      setReply(data); // set the response from the backend
-      setSend("sent");
-      setInputValue("");
-    } catch (error) {
-      console.error("Error sending question:", error);
-      setSend("error");
+    const response = await fetch("http://127.0.0.1:5000/questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ question: trimmed }),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let botReply = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk
+        .split("\n")
+        .filter((line) => line.startsWith("data: "));
+
+      for (const line of lines) {
+        const token = line.replace("data: ", "").trim();
+        if (token === "[DONE]") {
+          setConversation((prev) => [...prev, { role: "bot", text: botReply }]);
+          setSend("sent");
+          return;
+        }
+        botReply += token;
+        setConversation((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.role === "bot") {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: "bot", text: botReply };
+            return updated;
+          }
+          return [...prev, { role: "bot", text: botReply }];
+        });
+      }
     }
   };
 
@@ -43,14 +70,17 @@ function ChatPage() {
         </div>
 
         <div className="chat-messages">
-          <div className="message bot">
-            Hey there! Ask me anything about the RFP.
-          </div>
-          {question && <div className="message user">{question}</div>}
-          {send === "sending" ? (
+          {conversation.map((msg, index) => (
+            <div
+              key={index}
+              className={`message ${msg.role === "user" ? "user" : "bot"}`}
+            >
+              {msg.text}
+            </div>
+          ))}
+
+          {send === "sending" && (
             <div className="message bot">I'm thinking...</div>
-          ) : (
-            reply && <div className="message bot">{reply.answer}</div>
           )}
         </div>
 
@@ -60,6 +90,9 @@ function ChatPage() {
             placeholder="Ask a question..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSendQuestion();
+            }}
           />
           <button onClick={handleSendQuestion}>Send</button>
         </div>
