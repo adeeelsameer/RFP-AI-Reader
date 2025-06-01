@@ -1,5 +1,5 @@
 import "./ChatPage.css";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function ChatPage() {
   const [inputValue, setInputValue] = useState(""); // Track input text
@@ -7,6 +7,16 @@ function ChatPage() {
     { role: "bot", text: "Hey there! Ask me anything about the RFP." },
   ]);
   const [send, setSend] = useState("idle"); // "idle" | "sending" | "sent" | "error"
+
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation, send]);
 
   const handleSendQuestion = async () => {
     const trimmed = inputValue.trim();
@@ -69,6 +79,9 @@ function ChatPage() {
           {send === "sending" && (
             <div className="message bot">I'm thinking...</div>
           )}
+
+          {/* 👇 Invisible div to scroll to */}
+          <div ref={messagesEndRef} />
         </div>
 
         <div className="chat-input">
