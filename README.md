@@ -1,4 +1,4 @@
-# 🧠 RFP AI Reviewerr
+# 🧠 RFP AI Reviewer
 
 A Retrieval-Augmented Generation (RAG) web application that allows users to upload large RFP PDF documents and ask questions about the content. It uses a **Flask backend** for processing and **React frontend** for interaction.
 
